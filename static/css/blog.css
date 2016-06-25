@@ -38,6 +38,7 @@ header {
   right:0;
   width: inherit;
   margin: inherit;
+  z-index: 99;
 }
 
 #header-left {

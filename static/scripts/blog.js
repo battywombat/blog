@@ -6,9 +6,10 @@ jQuery(function() {
     $(content).hide();
     $(element).append($(content));
 
-    children.fadeOut(200, function() {
+    children.fadeOut(400, function() {
+      window.scrollTo(0,0);
       children.remove();
-      $(content).fadeIn(200);
+      $(content).fadeIn(400);
     });
   }
 
