@@ -51,27 +51,7 @@ with app.app_context():
         cursor = db.cursor()
         schema = open('schema.sql', 'r').read()
         cursor.executescript(schema)
-        cursor.execute('INSERT INTO tags(tag) VALUES(?)', ('politics',))
-        cursor.execute('INSERT INTO tags(tag) VALUES(?)', ('coding',))
-        tag_id = cursor.lastrowid
-        cursor.execute(
-            "INSERT INTO posts(title, body, post_date, edit_date)"
-            " VALUES(?, ?, ?, ?)",
-            (
-                'FIRST P0ST!',
-                "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                datetime.datetime.now(),
-                datetime.datetime.now().isoformat()
-            )
-        )
-        values = cursor.execute('SELECT * FROM posts WHERE 1=1').fetchall()[0]
-        cursor.execute('INSERT INTO post_tag(tag_id, post_id) VALUES(?,?)', (tag_id, values[0]))
-        for x in range(5):
-            cursor.execute(
-                "INSERT INTO posts(title, body, post_date, edit_date)"
-                " VALUES(?, ?, ?, ?)", values[1:])
-        cursor.execute("INSERT INTO users VALUES(?,?)", ('pwarner',
-                                                         pass_hash('werkzeug')))
+        cursor.executescript(open('test.sql', 'r').read())
         cursor.close()
         db.commit()
 
@@ -81,7 +61,10 @@ def date_format(date):
     Given a date string in datetime.datetime format, convert it into something
     more human readable
     '''
-    time = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
+    try:
+        time = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
+    except TypeError:
+        return 'unknown time'
     return time.strftime(current_app.config['TIME_FORMAT'])
 
 
