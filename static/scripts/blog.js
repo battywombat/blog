@@ -1,5 +1,10 @@
 jQuery(function() {
-  var start_query = $('#post-list').children();
+  var index_page, index_bound, index_finished_loading, 
+      query, query_bound, query_finished_loading;
+
+  function is_index_page() {
+    return $('#post-llist').children().is($('#sub-header'))
+  }
 
   var replace_content = function(element, content) {
     var children = $(element).children();
@@ -50,17 +55,17 @@ jQuery(function() {
   // END OF HEADER CODE
 
   var search = function() {
-    var query = $(search_input).val();
+    query = $(search_input).val();
     if (query === '')
       return;
     $.ajax({
       method: 'POST',
 
+      // bad place to do this
       beforeSend: function() {
-        if (!this.oldquery) {
-          this.oldquery = $('#post-list');
-          // if you're going to add a placeholder animation, do it here
-        }
+        if(is_index_page())
+          index_page = $('#post-list').children();
+
       },
 
       data: { value: query },
@@ -83,6 +88,48 @@ jQuery(function() {
 
   $(search_input).on('input', pass_football);
 
+  // lazy load posts
+  var loading_more = false, finished_loading = false;
+  $(window).scroll(function() {
+    var last = $('#post-list').children().last();
+    var top = $(last).offset().top;
+    var window_height = $(window).height();
+    var window_size = $(window).scrollTop();
+    if (window_size+window_height > top) {
+      var finished = (is_index_page() ? index_finished_loading : query_finished_loading);
+      if (loading_more || finished)
+        return; // Don't try to call this more than once
+      loading_more = true;
+      $.ajax({
+        method: 'POST',
+        data: { 
+          value: (is_index_page() ? undefined : query),
+          bound: (is_index_page() ? index_bound: query_bound)
+        },
+
+        success: function(data, status) {
+          if (is_index_page()) {
+            if (data.bound === index_bound) {
+              index_finished_loading= true;
+              return;
+            }
+            index_bound = data.bound;
+          } else {
+            if (data.bound === query_bound) {
+              query_finished_loading = true;
+              return;
+            }
+            query_bound = data.bound;
+          }
+          var new_html = $(data.html);
+          $(new_html).hide();
+          $('#post-list').append($(data.html));
+          $(new_html).fadeIn(400);
+          loading_more = false;
+        }
+      });
+    }
+  });
 
 });
 

@@ -3,7 +3,7 @@ import datetime
 import sqlite3
 
 from flask import (render_template, g, request, current_app, session, url_for,
-                   redirect)
+                   redirect, jsonify)
 
 from werkzeug.security import check_password_hash
 
@@ -17,9 +17,9 @@ def not_found():
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    cursor = g.db.cursor()
     if request.method == 'GET':
-        cursor = g.db.cursor()
-        cursor.execute('SELECT * FROM posts ORDER BY edit_date ASC LIMIT ?',
+        cursor.execute('SELECT * FROM posts ORDER BY id ASC LIMIT ?',
                        (current_app.config['MAX_POSTS'],))
         posts = [{
             'id': post[0],
@@ -29,29 +29,37 @@ def index():
         } for post in cursor.fetchall()]
         return render_template('index.html', posts=posts)
     else:
-        query = request.form['value']
-        cursor = g.db.cursor()
-        cursor.execute("SELECT id FROM tags WHERE tag LIKE ?", 
-                       ('%{}%'.format(query),))
-        tags = [t[0] for t in cursor.fetchall()]
-        rows = []
-        for tag in tags:
-            cursor.execute('SELECT id, title, body, post_date FROM post_tag '
-                           'JOIN posts ON posts.id=post_tag.post_id '
-                           'WHERE tag_id=?',
-                           (str(tag),))
-            rows += cursor.fetchall()
-        like_query = '%{}%'.format(query)
-        cursor.execute('SELECT * FROM posts WHERE title LIKE ? OR body LIKE ?',
-                       (like_query, like_query))
-        rows += cursor.fetchall()
+        bound = int(request.form['bound']) if 'bound' in request.form else current_app.config['MAX_POSTS']
+        if 'value' in request.form:
+            query = request.form['value']
+            cursor.execute("SELECT id FROM tags WHERE tag=?", (query,))
+            tag = cursor.fetchone() or " "
+            print(tag)
+            like_query = '%{}%'.format(query)
+            cursor.execute('SELECT id, title, body, edit_date FROM post_tag '
+                        'JOIN posts ON posts.id=post_tag.post_id WHERE tag_id=? '
+                        'UNION '
+                        'SELECT id, title, body, edit_date FROM posts '
+                        'WHERE title LIKE ? OR body LIKE ? '
+                        'ORDER BY id ASC LIMIT ? OFFSET ?',
+                        (tag[0], like_query, like_query, 
+                         current_app.config['MAX_POSTS'], bound))
+        else:
+            cursor.execute('SELECT id, title, body, edit_date FROM posts '
+                           'ORDER BY id ASC LIMIT ? OFFSET ?',
+                           (current_app.config['MAX_POSTS'], bound))
+
         posts = [{
             'id': post[0],
             'title': post[1],
             'body': post[2],
             'date': post[3]
-        } for post in rows]
-        return render_template('post_list.html', posts=posts)
+        } for post in cursor.fetchall()]
+        print(bound)
+        return jsonify({
+            'html': render_template('post_list.html', posts=posts),
+            'bound': bound+len(posts),
+        })
 
 
 @app.route("/login", methods=['GET', 'POST'])
