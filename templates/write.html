@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<form id="post-edit" action="" method="post">
+  <input name="title" type="text" value="{{post_title}}"></text>
+  <textarea name="body" form="post-edit">{{ post_body }}</textarea>
+  <input name="session" type="hidden"></text>
+  <input name="post-id" type="hidden"></text>
+  <input type="submit"></text>
+</form>
+{% endblock %}

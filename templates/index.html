@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<ul id="post-list">
+  <p id="sub-header"> {{ config['BLOG_SUBTITLE'] }} </p>
+  {% include 'post_list.html' %}
+</ul>
+{% endblock %}

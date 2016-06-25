@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+{% if session['username'] is defined %}
+<p>You are already logged in {{ session['username'] }}</p>
+{% else %}
+<form id="login" name="login" method="post" action="">
+  <input name="username" type="text"></input>
+  <input name="password" type="password"></input>
+  <input id="submit" type="submit" value="Login"></input>
+  <script>
+      $('#login').submit(function(event) {
+        event.preventDefault();
+        $.ajax({
+          type: 'POST',
+          data: $('#login').serializeArray(),
+          success: function(data) {
+            window.location.replace(data);
+          },
+          error: function(data) {
+            $("#submit").after($("<p>The username or password is incorrect</p>"));
+          }
+        });
+      });
+  </script>
+</form>
+{% endif %}
+{% endblock %}

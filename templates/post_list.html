@@ -1,0 +1,19 @@
+{% macro post_summary(post) %}
+<li class="post">
+  <p class=post-title>{{ post['title'] }}</p>
+  <p class="post-body">{{ post['body']|markdown|safe }}</p>
+  <div class="post-meta">
+    <div class="post-date"> {{ post['date']|date }}</div>
+    {% for tag in post['tags'] %}
+      <span class="post-tag">{{ tag }}</span>
+    {% endfor %}
+  </div>
+</li>
+{% endmacro %}
+{% if posts %}
+{% for post in posts %}
+    {{ post_summary(post) }}
+{% endfor %}
+{% else %}
+<p>We couldn't find any posts! =-(</p>
+{% endif %}
