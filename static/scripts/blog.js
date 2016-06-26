@@ -1,9 +1,11 @@
 jQuery(function() {
-  var index_page, index_bound, index_finished_loading, 
+  var index_page, index_finished_loading = false, 
       query, query_bound, query_finished_loading;
 
+  var index_bound = $('#post-list').children().length-1;
+
   function is_index_page() {
-    return $('#post-llist').children().is($('#sub-header'))
+    return $('#post-list').children().is($('#sub-header'))
   }
 
   var replace_content = function(element, content) {
@@ -89,7 +91,7 @@ jQuery(function() {
   $(search_input).on('input', pass_football);
 
   // lazy load posts
-  var loading_more = false, finished_loading = false;
+  var loading_more = false;
   $(window).scroll(function() {
     var last = $('#post-list').children().last();
     var top = $(last).offset().top;
@@ -100,6 +102,7 @@ jQuery(function() {
       if (loading_more || finished)
         return; // Don't try to call this more than once
       loading_more = true;
+      
       $.ajax({
         method: 'POST',
         data: { 
@@ -108,12 +111,16 @@ jQuery(function() {
         },
 
         success: function(data, status) {
+          console.log('new successful request');
           if (is_index_page()) {
             if (data.bound === index_bound) {
-              index_finished_loading= true;
+              console.log("Even this far!");
+              index_finished_loading = true;
               return;
+            } else {
+              index_bound = data.bound;
+              console.log('i have no idea');
             }
-            index_bound = data.bound;
           } else {
             if (data.bound === query_bound) {
               query_finished_loading = true;
