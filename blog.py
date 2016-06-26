@@ -18,8 +18,7 @@ app.config.from_pyfile('config.py')
 
 
 def connect_db():
-    db = sqlite3.connect(app.config['SQLITE_DB_FILE'])
-    return db
+    return sqlite3.connect(app.config['SQLITE_DB_FILE'])
 
 
 @app.before_request
@@ -30,6 +29,9 @@ def get_db():
 
 @app.teardown_appcontext
 def close_db(error):
+    if error:
+        print(error)
+        return
     if hasattr(g, 'db'):
         g.db.close()
         del g.db
@@ -47,6 +49,7 @@ app.permanent_session_lifetime = datetime.timedelta(**app.config[
 
 with app.app_context():
     if app.config['DEBUG']:
+        print('darn you!')
         db = connect_db()
         cursor = db.cursor()
         schema = open('schema.sql', 'r').read()
@@ -90,7 +93,7 @@ class DateConverter(BaseConverter):
     def to_python(self, value):
         values = value.split('-')
         try:
-            return datetime.date(*map(lambda x: int(x), values))
+            return datetime.date(*[int(x) for x in values])
         except ValueError:
             raise ValidationError()
 
