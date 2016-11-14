@@ -37,13 +37,13 @@ def index():
             print(tag)
             like_query = '%{}%'.format(query)
             cursor.execute('SELECT id, title, body, edit_date FROM post_tag '
-                        'JOIN posts ON posts.id=post_tag.post_id WHERE tag_id=? '
-                        'UNION '
-                        'SELECT id, title, body, edit_date FROM posts '
-                        'WHERE title LIKE ? OR body LIKE ? '
-                        'ORDER BY id ASC LIMIT ? OFFSET ?',
-                        (tag[0], like_query, like_query, 
-                         current_app.config['MAX_POSTS'], bound))
+                           'JOIN posts ON posts.id=post_tag.post_id WHERE tag_id=? '
+                           'UNION '
+                           'SELECT id, title, body, edit_date FROM posts '
+                           'WHERE title LIKE ? OR body LIKE ? '
+                           'ORDER BY id ASC LIMIT ? OFFSET ?',
+                           (tag[0], like_query, like_query,
+                            current_app.config['MAX_POSTS'], bound))
         else:
             cursor.execute('SELECT id, title, body, edit_date FROM posts '
                            'ORDER BY id ASC LIMIT ? OFFSET ?',
@@ -83,9 +83,7 @@ def login():
 
 
 @app.route('/write', methods=['GET', 'POST'])
-@require_login
 def new_post():
-    print(session)
     if request.method == 'GET':
         return render_template('write.html')
     else:

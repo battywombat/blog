@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
+<p>Here you can write a new blog post</p>
 <form id="post-edit" action="" method="post">
-  <input name="title" type="text" value="{{post_title}}"></text>
-  <textarea name="body" form="post-edit">{{ post_body }}</textarea>
+  <span>Title:</span><input name="title" type="text" value="{{post_title}}"></text>
+  <textarea id="write-post-body" name="body" form="post-edit">{{ post_body }}</textarea>
   <input name="session" type="hidden"></text>
   <input name="post-id" type="hidden"></text>
-  <input type="submit"></text>
+  <input id="write-post-submit" type="submit" value="Post"></text>
 </form>
 {% endblock %}

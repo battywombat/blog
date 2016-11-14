@@ -49,7 +49,6 @@ app.permanent_session_lifetime = datetime.timedelta(**app.config[
 
 with app.app_context():
     if app.config['DEBUG']:
-        print('darn you!')
         db = connect_db()
         cursor = db.cursor()
         schema = open('schema.sql', 'r').read()

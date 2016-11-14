@@ -1,5 +1,5 @@
 jQuery(function() {
-  var index_page, index_finished_loading = false, 
+  var index_page, index_finished_loading = false,
       query, query_bound, query_finished_loading;
 
   var index_bound = $('#post-list').children().length-1;
@@ -102,10 +102,10 @@ jQuery(function() {
       if (loading_more || finished)
         return; // Don't try to call this more than once
       loading_more = true;
-      
+
       $.ajax({
         method: 'POST',
-        data: { 
+        data: {
           value: (is_index_page() ? undefined : query),
           bound: (is_index_page() ? index_bound: query_bound)
         },

@@ -154,3 +154,14 @@ header {
   height: 1em;
   background-color: black;
 }
+
+#write-post-body {
+  display: block;
+  width: 100%;
+  height: 25em;
+}
+
+#write-post-submit {
+  display: table;
+  margin: auto;
+}
